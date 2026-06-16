@@ -24,6 +24,7 @@ a{color:inherit}
 header.masthead{padding:clamp(28px,4vw,64px) var(--pad) 0;text-align:center}
 .seals{display:flex;justify-content:center;align-items:center;gap:clamp(28px,5vw,72px);margin-bottom:clamp(20px,2.5vw,36px)}
 .seals img{height:clamp(96px,11vw,150px);width:auto}
+.seals .logo-tfk{height:clamp(78px,8.8vw,120px)}
 .hero-kicker{font-family:var(--display);text-transform:uppercase;
   letter-spacing:.14em;font-weight:700;font-size:clamp(22px,3.4vw,42px);margin:0 0 .25em}
 .hero-title{font-family:var(--serif);font-weight:700;line-height:1.1;
@@ -103,6 +104,4 @@ header.masthead{padding:clamp(28px,4vw,64px) var(--pad) 0;text-align:center}
 .detail .d-kicker{color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:clamp(13px,1.2vw,17px);margin:0 0 1em}
 
 @media (max-width:560px){
-  .cards{grid-template-columns:1fr}
-  .toggle button{padding:.55em .9em}
-}
+  .cards{grid-template-col
