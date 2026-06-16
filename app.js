@@ -21,8 +21,7 @@
   };
 
   /* ---------- hero ---------- */
-  $("heroSub").innerHTML = "<b>TFK-124</b> · " + D.university +
-    " · " + D.theses.length + " выпускных работ";
+  $("heroSub").innerHTML = "<b>TFK-124</b> · " + D.university;
 
   /* ---------- tag cloud ---------- */
   function weightClass(w) { return w >= 3 ? "w3" : (w === 2 ? "w2" : "w1"); }
