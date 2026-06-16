@@ -3,40 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>TFK-124 — Выпускные работы · Заманбап Мугалим / IUCA</title>
+<title>TFK-124 — Магистерские работы · Заманбап Мугалим / IUCA</title>
 <link rel="icon" href="assets/tfk-emblem.svg">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header class="masthead">
+<!-- ЭКРАН 1 — титул -->
+<header class="screen hero" id="screen1">
   <div class="seals">
     <img src="assets/iuca-seal-black.png" alt="Печать МУЦА / IUCA">
     <img class="logo-tfk" src="assets/tfk-lockup.svg" alt="Заманбап Мугалим / Teach for Kyrgyzstan">
   </div>
-  <p class="hero-kicker">Выпуск&nbsp;·&nbsp;2026</p>
-  <h1 class="hero-title" id="heroTitle">Педагогическая деятельность в условиях изменений</h1>
+  <p class="hero-kicker">Магистратура&nbsp;·&nbsp;Выпуск&nbsp;·&nbsp;2026</p>
+  <h1 class="hero-title">Педагогическая деятельность в условиях изменений</h1>
   <p class="hero-sub" id="heroSub"></p>
+  <div class="scroll-hint" aria-hidden="true">⌄</div>
 </header>
 
-<div class="wrap">
-  <div class="rule"></div>
-
-  <div class="toggle" role="tablist" aria-label="Способ просмотра">
-    <button role="tab" data-view="cloud" aria-selected="true">Облако тем</button>
-    <button role="tab" data-view="facets" aria-selected="false">По теме</button>
-    <button role="tab" data-view="names" aria-selected="false">По имени</button>
+<!-- ЭКРАН 2 — облако тем -->
+<section class="screen cloud-screen" id="screen2" aria-label="Облако тем">
+  <div class="screen-head">
+    <img class="head-emblem" src="assets/tfk-emblem.svg" alt="">
+    <h2 class="screen-title">Облако тем магистерских работ</h2>
+    <img class="head-emblem" src="assets/tfk-emblem.svg" alt="">
   </div>
+  <div class="cloud" id="cloud"></div>
+</section>
 
-  <section class="panel active" id="panel-cloud" aria-label="Облако тем">
-    <div class="cloud" id="cloud"></div>
-  </section>
-  <section class="panel" id="panel-facets" aria-label="Темы">
-    <div class="facets" id="facets"></div>
-  </section>
-  <section class="panel" id="panel-names" aria-label="По имени">
-    <div class="names" id="names"></div>
-  </section>
+<!-- ЭКРАН 3 — список работ -->
+<section class="screen list-screen" id="screen3" aria-label="Список магистерских работ">
+  <div class="screen-head">
+    <img class="head-emblem" src="assets/tfk-emblem.svg" alt="">
+    <h2 class="screen-title">Список магистерских работ</h2>
+    <img class="head-emblem" src="assets/tfk-emblem.svg" alt="">
+  </div>
 
   <div class="filterbar" id="filterbar">
     <span class="ftxt" id="filtertext"></span>
@@ -45,13 +46,15 @@
 
   <p class="count" id="count"></p>
   <div class="cards" id="cards"></div>
-</div>
+</section>
 
+<!-- Деталь работы -->
 <div class="overlay" id="overlay" role="dialog" aria-modal="true">
-  <button class="close" id="closeDetail" aria-label="Закрыть">&times;</button>
+  <button class="back" id="closeDetail" aria-label="Назад к списку">← Назад</button>
   <div class="detail" id="detail"></div>
 </div>
 
 <script src="data/data.js"></script>
 <script src="app.js"></script>
 </body>
+</html>

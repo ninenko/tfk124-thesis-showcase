@@ -4,13 +4,16 @@
   var D = window.THESIS_DATA;
   if (!D) { document.body.innerHTML = "<p style='padding:40px'>Нет данных (data/data.js).</p>"; return; }
 
+  var LANG = { ru: "русский", ky: "кыргызский", en: "английский" };
+  var LANG_PREP = { ru: "русском", ky: "кыргызском", en: "английском" };
+
   var facetLabel = {};
   D.facets.forEach(function (f) { facetLabel[f.id] = f.label; });
 
   var bySlug = {};
   D.theses.forEach(function (t) { bySlug[t.slug] = t; });
 
-  var state = { type: null, value: null };  // type: 'tag' | 'facet' | null
+  var state = { type: null, value: null };
 
   var $ = function (id) { return document.getElementById(id); };
   var el = function (tag, cls, txt) {
@@ -20,19 +23,17 @@
     return e;
   };
 
-  /* ---------- hero ---------- */
+  /* hero */
   $("heroSub").innerHTML = "<b>TFK-124</b> · " + D.university;
 
-  /* ---------- tag cloud ---------- */
+  /* облако тем */
   function weightClass(w) { return w >= 3 ? "w3" : (w === 2 ? "w2" : "w1"); }
   (function renderCloud() {
     var box = $("cloud");
     var cloud = D.cloud.slice();
-    // лёгкое перемешивание для «облачного» вида, но крупные — ближе к центру
     cloud.sort(function () { return Math.random() - 0.5; });
     cloud.sort(function (a, b) { return b.weight - a.weight; });
     var order = [];
-    // чередуем: крупные в середину
     cloud.forEach(function (c, i) { (i % 2 ? order.push : order.unshift).call(order, c); });
     order.forEach(function (c) {
       var b = el("button", "cloud-tag " + weightClass(c.weight), c.tag);
@@ -41,34 +42,7 @@
     });
   })();
 
-  /* ---------- facets ---------- */
-  (function renderFacets() {
-    var box = $("facets");
-    D.facets.filter(function (f) { return f.count > 0; })
-      .sort(function (a, b) { return b.count - a.count; })
-      .forEach(function (f) {
-        var b = el("button");
-        b.appendChild(document.createTextNode(f.label));
-        var c = el("span", "cnt", "" + f.count);
-        b.appendChild(c);
-        b.onclick = function () { setFilter("facet", f.id); };
-        box.appendChild(b);
-      });
-  })();
-
-  /* ---------- names ---------- */
-  (function renderNames() {
-    var box = $("names");
-    D.theses.slice().sort(function (a, b) {
-      return a.student.localeCompare(b.student, "ru");
-    }).forEach(function (t) {
-      var b = el("button", null, t.student);
-      b.onclick = function () { openDetail(t.slug); };
-      box.appendChild(b);
-    });
-  })();
-
-  /* ---------- filtering + cards ---------- */
+  /* фильтр + карточки */
   function matches(t) {
     if (!state.type) return true;
     if (state.type === "tag") return t.tags.indexOf(state.value) !== -1;
@@ -86,6 +60,9 @@
       : "Найдено работ: " + list.length;
     list.forEach(function (t) {
       var card = el("button", "card");
+      var top = el("div", "card-top");
+      top.appendChild(el("span", "lang-tag lang-" + t.lang, LANG[t.lang] || t.lang));
+      card.appendChild(top);
       card.appendChild(el("div", "card-name", t.student));
       card.appendChild(el("div", "card-title", t.title || ""));
       var chips = el("div", "card-chips");
@@ -100,12 +77,11 @@
 
   function setFilter(type, value) {
     state = { type: type, value: value };
-    var bar = $("filterbar");
-    bar.classList.add("active");
+    $("filterbar").classList.add("active");
     $("filtertext").innerHTML = (type === "tag" ? "Тема: " : "Раздел: ") +
       "<b>" + (type === "facet" ? (facetLabel[value] || value) : value) + "</b>";
     renderCards();
-    document.querySelector(".count").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("screen3").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function clearFilter() {
@@ -115,26 +91,64 @@
   }
   $("clearFilter").onclick = clearFilter;
 
-  /* ---------- view toggle ---------- */
-  var tabs = document.querySelectorAll(".toggle button");
-  tabs.forEach(function (btn) {
-    btn.onclick = function () {
-      tabs.forEach(function (b) { b.setAttribute("aria-selected", "false"); });
-      btn.setAttribute("aria-selected", "true");
-      ["cloud", "facets", "names"].forEach(function (v) {
-        $("panel-" + v).classList.toggle("active", v === btn.dataset.view);
-      });
-    };
-  });
+  /* деталь: введение с переводом */
+  function buildIntro(t) {
+    var wrap = el("div", "d-intro");
+    var hasRu = t.intro_ru && t.intro_ru.length > 0;
+    var nonRu = t.lang !== "ru" && hasRu;
 
-  /* ---------- detail ---------- */
+    var head = el("div", "d-intro-head");
+    head.appendChild(el("h3", "d-intro-title", "Введение"));
+    head.appendChild(el("span", "lang-tag lang-" + t.lang, LANG[t.lang] || t.lang));
+    wrap.appendChild(head);
+
+    var note = el("p", "d-trnote");
+    var body = el("p", "d-intro-body");
+    var toggle = el("button", "d-trbtn");
+    var showing = nonRu ? "ru" : "orig";
+
+    function render() {
+      if (!nonRu) {
+        note.style.display = "none";
+        toggle.style.display = "none";
+        body.textContent = t.intro || "";
+        return;
+      }
+      if (showing === "ru") {
+        note.style.display = "";
+        note.innerHTML = "⚙ Автоматический перевод на русский · оригинал на " +
+          (LANG_PREP[t.lang] || t.lang) + " языке";
+        body.textContent = t.intro_ru;
+        toggle.textContent = "Показать оригинал введения (" + (LANG[t.lang] || t.lang) + ")";
+      } else {
+        note.style.display = "";
+        note.innerHTML = "Оригинал введения на " + (LANG_PREP[t.lang] || t.lang) + " языке";
+        body.textContent = t.intro;
+        toggle.textContent = "← Показать перевод на русский";
+      }
+    }
+    toggle.onclick = function () { showing = (showing === "ru" ? "orig" : "ru"); render(); };
+    render();
+
+    wrap.appendChild(note);
+    if (nonRu) wrap.appendChild(toggle);
+    wrap.appendChild(body);
+    return wrap;
+  }
+
   function openDetail(slug) {
     var t = bySlug[slug]; if (!t) return;
     var d = $("detail"); d.innerHTML = "";
     d.appendChild(el("p", "d-kicker", "Выпускная квалификационная работа · TFK-124 · 2026"));
     d.appendChild(el("h2", "d-name", t.student));
     if (t.title) d.appendChild(el("p", "d-title", t.title));
-    if (t.abstract) d.appendChild(el("p", "d-abstract", t.abstract));
+
+    if ((t.intro && t.intro.length) || (t.intro_ru && t.intro_ru.length)) {
+      d.appendChild(buildIntro(t));
+    } else if (t.abstract) {
+      d.appendChild(el("p", "d-intro-body", t.abstract));
+    }
+
     if (t.tags && t.tags.length) {
       var tags = el("div", "d-tags");
       t.tags.forEach(function (tg) {
@@ -154,25 +168,22 @@
   function closeDetail() { $("overlay").classList.remove("active"); }
   $("closeDetail").onclick = closeDetail;
 
-  /* ---------- kiosk layer ---------- */
+  /* киоск-слой */
   function goHome() {
     closeDetail();
     clearFilter();
-    tabs[0].click();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  // idle-reset 60s
   var idleTimer = null;
   function resetIdle() {
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(goHome, 60000);
+    idleTimer = setTimeout(goHome, 90000);
   }
   ["click", "mousemove", "keydown", "wheel", "touchstart"].forEach(function (ev) {
     document.addEventListener(ev, resetIdle, { passive: true });
   });
   resetIdle();
 
-  // Fullscreen + Wake Lock по первому клику (требуют жеста пользователя)
   var activated = false;
   document.addEventListener("click", function firstGesture() {
     if (activated) return; activated = true;
@@ -180,9 +191,7 @@
       document.documentElement.requestFullscreen().catch(function () {});
     }
     if (navigator.wakeLock && navigator.wakeLock.request) {
-      var relock = function () {
-        navigator.wakeLock.request("screen").catch(function () {});
-      };
+      var relock = function () { navigator.wakeLock.request("screen").catch(function () {}); };
       relock();
       document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "visible") relock();
@@ -190,11 +199,9 @@
     }
   });
 
-  // Esc закрывает деталь
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeDetail();
   });
 
-  /* ---------- init ---------- */
   renderCards();
 })();
