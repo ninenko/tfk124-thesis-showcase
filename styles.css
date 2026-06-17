@@ -116,4 +116,10 @@ a{color:inherit}
 .detail .d-tags{display:flex;flex-wrap:wrap;gap:10px;margin:1.4em 0 2em}
 .detail .d-pdf{display:inline-block;border:2px solid var(--ink);background:var(--ink);color:var(--bg);
   text-decoration:none;padding:.7em 1.6em;font-size:clamp(17px,1.7vw,24px);font-weight:700;border-radius:3px}
-.detail .d-pdf:hover{background:var(--bg);c
+.detail .d-pdf:hover{background:var(--bg);color:var(--ink)}
+
+@media (max-width:560px){
+  .cards{grid-template-columns:1fr}
+  .head-emblem{height:42px}
+  .screen-title{font-size:clamp(20px,6vw,30px)}
+}
