@@ -200,3 +200,13 @@
       relock();
       document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "visible") relock();
+      });
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeDetail();
+  });
+
+  renderCards();
+})();
