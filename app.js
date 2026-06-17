@@ -168,6 +168,11 @@
   function closeDetail() { $("overlay").classList.remove("active"); }
   $("closeDetail").onclick = closeDetail;
 
+  var hint = $("scrollHint");
+  if (hint) hint.onclick = function () {
+    $("screen2").scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   /* киоск-слой */
   function goHome() {
     closeDetail();
@@ -195,13 +200,3 @@
       relock();
       document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "visible") relock();
-      });
-    }
-  });
-
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeDetail();
-  });
-
-  renderCards();
-})();
