@@ -14,6 +14,15 @@
   D.theses.forEach(function (t) { bySlug[t.slug] = t; });
 
   var state = { type: null, value: null };
+  var currentSlug = null;
+
+  var PAGES_BASE = "https://ninenko.github.io/tfk124-thesis-showcase/";
+  function shareURL(slug) {
+    var base = (location.protocol === "file:")
+      ? PAGES_BASE
+      : (location.origin + location.pathname);
+    return base + "#/" + slug;
+  }
 
   var $ = function (id) { return document.getElementById(id); };
   var el = function (tag, cls, txt) {
@@ -23,10 +32,8 @@
     return e;
   };
 
-  /* hero */
   $("heroSub").innerHTML = "<b>TFK-124</b> · " + D.university;
 
-  /* облако тем */
   function weightClass(w) { return w >= 3 ? "w3" : (w === 2 ? "w2" : "w1"); }
   (function renderCloud() {
     var box = $("cloud");
@@ -42,7 +49,6 @@
     });
   })();
 
-  /* фильтр + карточки */
   function matches(t) {
     if (!state.type) return true;
     if (state.type === "tag") return t.tags.indexOf(state.value) !== -1;
@@ -91,7 +97,6 @@
   }
   $("clearFilter").onclick = clearFilter;
 
-  /* деталь: введение с переводом */
   function buildIntro(t) {
     var wrap = el("div", "d-intro");
     var hasRu = t.intro_ru && t.intro_ru.length > 0;
@@ -138,6 +143,7 @@
 
   function openDetail(slug) {
     var t = bySlug[slug]; if (!t) return;
+    currentSlug = slug;
     var d = $("detail"); d.innerHTML = "";
     d.appendChild(el("p", "d-kicker", "Выпускная квалификационная работа · TFK-124 · 2026"));
     d.appendChild(el("h2", "d-name", t.student));
@@ -159,21 +165,69 @@
       });
       d.appendChild(tags);
     }
+    var actions = el("div", "d-actions");
     var a = el("a", "d-pdf", "Открыть полный текст (PDF)");
     a.href = t.pdf; a.target = "_blank"; a.rel = "noopener";
-    d.appendChild(a);
+    actions.appendChild(a);
+
+    var copyLabel = "Скопировать ссылку";
+    var copyBtn = el("button", "d-copy", copyLabel);
+    copyBtn.onclick = function () { copyText(shareURL(t.slug), copyBtn, copyLabel); };
+    actions.appendChild(copyBtn);
+    d.appendChild(actions);
+
     $("overlay").classList.add("active");
     $("overlay").scrollTop = 0;
+    if (location.hash !== "#/" + slug) location.hash = "/" + slug;
   }
-  function closeDetail() { $("overlay").classList.remove("active"); }
+
+  function closeDetail() {
+    currentSlug = null;
+    $("overlay").classList.remove("active");
+    if (location.hash) {
+      if (history.replaceState) history.replaceState(null, "", location.pathname + location.search);
+      else location.hash = "";
+    }
+  }
   $("closeDetail").onclick = closeDetail;
+
+  function copyText(text, btn, label) {
+    function done() {
+      btn.textContent = "Ссылка скопирована ✓";
+      btn.classList.add("copied");
+      clearTimeout(btn._t);
+      btn._t = setTimeout(function () {
+        btn.textContent = label; btn.classList.remove("copied");
+      }, 2000);
+    }
+    function fallback() {
+      var ta = el("textarea");
+      ta.value = text;
+      ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta); done();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+  }
+
+  function applyHash() {
+    var m = location.hash.match(/^#\/(.+)$/);
+    if (m && bySlug[m[1]]) {
+      if (m[1] !== currentSlug) openDetail(m[1]);
+    } else if (currentSlug) {
+      closeDetail();
+    }
+  }
+  window.addEventListener("hashchange", applyHash);
 
   var hint = $("scrollHint");
   if (hint) hint.onclick = function () {
     $("screen2").scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  /* киоск-слой */
   function goHome() {
     closeDetail();
     clearFilter();
@@ -209,4 +263,5 @@
   });
 
   renderCards();
+  applyHash();
 })();

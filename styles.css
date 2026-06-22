@@ -114,9 +114,15 @@ a{color:inherit}
   white-space:pre-line;margin:0 0 .4em;text-align:left}
 
 .detail .d-tags{display:flex;flex-wrap:wrap;gap:10px;margin:1.4em 0 2em}
+.detail .d-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 .detail .d-pdf{display:inline-block;border:2px solid var(--ink);background:var(--ink);color:var(--bg);
   text-decoration:none;padding:.7em 1.6em;font-size:clamp(17px,1.7vw,24px);font-weight:700;border-radius:3px}
 .detail .d-pdf:hover{background:var(--bg);color:var(--ink)}
+.detail .d-copy{border:2px solid var(--ink);background:var(--bg);color:var(--ink);cursor:pointer;
+  padding:.7em 1.6em;font-size:clamp(17px,1.7vw,24px);font-weight:700;border-radius:3px;
+  font-family:inherit;transition:background .15s,color .15s}
+.detail .d-copy:hover{background:var(--ink);color:var(--bg)}
+.detail .d-copy.copied{background:var(--ink);color:var(--bg)}
 
 @media (max-width:560px){
   .cards{grid-template-columns:1fr}
